@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Display Array RGB</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .matrix-table {
+        font-size: 0.8rem;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .matrix-table td {
+        padding: 4px;
+        text-align: center;
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div class="container mt-5">
+      <h2 class="text-center">Gambar yang Diunggah</h2>
+      <div class="text-center">
+        <img
+          src="{{ image_path }}"
+          alt="Uploaded Image"
+          class="img-fluid rounded shadow-lg mb-4"
+        />
+      </div>
+
+      <h2 class="text-center">Array RGB dalam Matriks</h2>
+      <div class="row">
+        {% for channel, data in rgb_array.items() %}
+        <div class="col-md-4">
+          <h3 class="text-center">{{ channel }}</h3>
+          <div class="matrix-table">
+            <table class="table table-bordered">
+              {% for row in data %}
+              <tr>
+                {% for value in row %}
+                <td>{{ value }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </table>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <h2 class="text-center mt-5">Histogram Distribusi Nilai RGB</h2>
+      <div class="row">
+        <div class="col-md-12">
+          <canvas id="rgbHistogram"></canvas>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <a href="/" class="btn btn-secondary">Unggah Gambar Lain</a>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const ctx = document.getElementById('rgbHistogram').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({ length: 256 }, (_, i) => i),
+          datasets: [
+            {
+              label: 'Red',
+              data: {{ histograms.R | tojson }},
+              borderColor: '#ff0000',
+              backgroundColor: 'rgba(255, 0, 0, 0.1)',
+              fill: true,
+            },
+            {
+              label: 'Green',
+              data: {{ histograms.G | tojson }},
+              borderColor: '#00ff00',
+              backgroundColor: 'rgba(0, 255, 0, 0.1)',
+              fill: true,
+            },
+            {
+              label: 'Blue',
+              data: {{ histograms.B | tojson }},
+              borderColor: '#0000ff',
+              backgroundColor: 'rgba(0, 0, 255, 0.1)',
+              fill: true,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: { display: true, text: 'Pixel Value' },
+            },
+            y: {
+              title: { display: true, text: 'Frequency' },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
